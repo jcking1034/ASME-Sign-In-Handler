@@ -5,7 +5,8 @@ import os
 from collections import Counter
 
 NAME = 'Name'
-RECORD_FILE = '.data.csv'
+COLS_TO_KEEP = ['phone', 'email']   # Cols to keep (not including Name col)
+RECORD_FILE = '.data.csv'           # File to collect/store data
 
 def display_help():
     msg = """
@@ -45,11 +46,22 @@ def add(sheet):
 
     # Remove multiple instances of names, keeping the first instance of each name
     new_data = data.groupby(NAME, as_index = False).first()
+    new_data = new_data[[NAME] + COLS_TO_KEEP]
 
     if RECORD_FILE not in os.listdir():
+        event_name = None
+        while not event_name:
+            event_name = input("Name of event (MUST BE UNIQUE): ")
+        new_data[event_name] = 1
         new_data.to_csv(RECORD_FILE, index=False)
     else:
         all_data = pd.read_csv(RECORD_FILE)
+
+        event_name = None
+        while not event_name or event_name in all_data.columns:
+            event_name = input("Name of event (MUST BE UNIQUE): ")
+        new_data[event_name] = 1
+
         all_data = pd.concat([all_data, new_data], sort = False)
         all_data.to_csv(RECORD_FILE, index=False)
     print(f"SUCCESS: Added {sheet} to records")
