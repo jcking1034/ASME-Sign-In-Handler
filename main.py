@@ -15,6 +15,8 @@ help: Display help page (this page)
 add: Add a new Excel Spreadsheet to the collection of records
 add from directory: Given a directory, find all spreadsheets and add to records
 output: Create an Excel spreadsheet using all records
+delete: Delete event data by event name
+list events: Print a list of all events in the database
 reset: Delete all records
 quit: quit this program"""
     print(msg)
@@ -64,7 +66,7 @@ def add(sheet):
 
         all_data = pd.concat([all_data, new_data], sort = False)
         all_data.to_csv(RECORD_FILE, index=False)
-    print(f"SUCCESS: Added {sheet} to records")
+    print(f"SUCCESS: Added {sheet} to records as '{event_name}'")
 
 
 def create_excel():
@@ -88,6 +90,31 @@ def create_excel():
     print(f"SUCCESS: Created file {output_file}")
 
 
+def delete_event():
+    all_data = pd.read_csv(RECORD_FILE)
+
+    event_name = None
+    while not event_name or event_name not in all_data.columns:
+        event_name = input( "Name of event to delete (enter 'list events' to view all events, " +
+                            "'cancel' to return to main menu): ")
+        if event_name == 'list events':
+            list_events()
+        elif event_name == 'cancel':
+            return
+
+    all_data = all_data[all_data[event_name].isna()]
+    all_data = all_data.drop(columns=[event_name])
+    all_data.to_csv(RECORD_FILE, index=False)
+
+    print(f"SUCCESS: Deleted event '{event_name}'")
+
+
+def list_events():
+    all_data = pd.read_csv(RECORD_FILE)
+    events_list = f"\n".join([str(col) for col in all_data.columns if col not in [NAME] + COLS_TO_KEEP])
+    print("\nExisting Events:\n" + events_list + "\n")
+
+
 def reset_records():
     if input("CONFIRM (enter 'yes'): ") == 'yes':
         if RECORD_FILE in os.listdir():
@@ -106,16 +133,21 @@ command_list = {
     "add": add_spreadsheet,
     "add from directory": add_from_directory,
     "output": create_excel,
+    "delete": delete_event,
+    "list events": list_events,
     "reset": reset_records,
-    "quit": quit_program
+    "quit": quit_program    
 }
 
 
 if __name__ == '__main__':
     while True:
-        command = input("\nEnter Command ('help' for help): ")
-        if command in command_list:
-            print(f"\n*****\n{command}")
-            command_list[command]()
-        else:
-            print(f"UNRECOGNIZED COMMAND: {command}")
+        try:
+            command = input("\nEnter Command ('help' for help): ")
+            if command in command_list:
+                print(f"\n*****\n{command}")
+                command_list[command]()
+            else:
+                print(f"UNRECOGNIZED COMMAND: {command}")
+        except KeyboardInterrupt:
+            print("\nEnter 'quit' to quit")

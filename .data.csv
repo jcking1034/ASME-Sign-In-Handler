@@ -1,7 +1,4 @@
-Name,phone,email,EVENT 1,EVENT 2
-Adam,213-292-0918,1@gmail.com,1.0,
-Bob,998876282,,1.0,
-Charles,12973-2182-373,dsf@gmail.com,1.0,
-Adam,213-292-0918,1@gmail.com,,1.0
-Ed,222-898-1818,E@gmail.com,,1.0
-Greg,999-991-0909,Greg@gmail.com,,1.0
+Name,phone,email,a
+Adam,213-292-0918,1@gmail.com,1.0
+Bob,998876282,,1.0
+Charles,12973-2182-373,dsf@gmail.com,1.0
