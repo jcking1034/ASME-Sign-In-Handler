@@ -110,6 +110,10 @@ def delete_event():
 
 
 def list_events():
+    if RECORD_FILE not in os.listdir():
+        print(f"FAIL: No events to list because {RECORD_FILE} not found!")
+        return
+
     all_data = pd.read_csv(RECORD_FILE)
     events_list = f"\n".join([str(col) for col in all_data.columns if col not in [NAME] + COLS_TO_KEEP])
     print("\nExisting Events:\n" + events_list + "\n")
