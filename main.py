@@ -2,6 +2,7 @@
 # Requires xlrd and openpyxl
 import pandas as pd
 import os
+import sys
 from collections import Counter
 
 NAME = 'Name'
@@ -19,12 +20,13 @@ delete: Delete event data by event name
 list events: Print a list of all events in the database
 reset: Delete all records
 quit: quit this program"""
-    print(msg)
+    # print(msg)
+    return msg
 
 
 def add_spreadsheet():
     read_from = input("Name of Excel Spreadsheet containing new data: ")
-    add(read_from)
+    return add(read_from)
 
 
 def add_from_directory():
@@ -32,19 +34,27 @@ def add_from_directory():
     try:
         spreadsheets = [f for f in os.listdir(directory) if f[-5:] == '.xlsx']
     except:
-        print("FAIL: Bad directory")
-        return
+        # print("FAIL: Bad directory")
+        return "FAIL: Bad directory"
 
+    ret = ''
     for sheet in spreadsheets:
-        add(directory + sheet)
+        ret += add(directory + sheet) + "\n"
+    
+    return ret
 
 
 def add(sheet):
     try:
         data = pd.read_excel(sheet)
     except:
-        print('FAIL: Could not read file', sheet)
-        return
+        # print('FAIL: Could not read file', sheet)
+        return f'FAIL: Could not read file {str(sheet)}'
+
+    for col_name in [NAME] + COLS_TO_KEEP:
+        if col_name not in data.columns:
+            # print(f'FAIL: Did not find column {col_name}')
+            return f'FAIL: Did not find column {col_name}'
 
     # Remove multiple instances of names, keeping the first instance of each name
     new_data = data.groupby(NAME, as_index = False).first()
@@ -53,7 +63,7 @@ def add(sheet):
     if RECORD_FILE not in os.listdir():
         event_name = None
         while not event_name:
-            event_name = input("Name of event (MUST BE UNIQUE): ")
+            event_name = input(f"Name of event for {sheet} (MUST BE UNIQUE): ")
         new_data[event_name] = 1
         new_data.to_csv(RECORD_FILE, index=False)
     else:
@@ -66,13 +76,14 @@ def add(sheet):
 
         all_data = pd.concat([all_data, new_data], sort = False)
         all_data.to_csv(RECORD_FILE, index=False)
-    print(f"SUCCESS: Added {sheet} to records as '{event_name}'")
+    # print(f"SUCCESS: Added {sheet} to records as '{event_name}'")
+    return f"SUCCESS: Added {sheet} to records as '{event_name}'"
 
 
 def create_excel():
     if RECORD_FILE not in os.listdir():
-        print("FAIL: No data exists (hidden file '.data.csv' not found)")
-        return
+        # print("FAIL: No data exists (hidden file '.data.csv' not found)")
+        return "FAIL: No data exists (hidden file '.data.csv' not found)"
 
     all_data = pd.read_csv(RECORD_FILE)
     final = all_data.groupby(NAME, as_index = False).first()
@@ -82,12 +93,13 @@ def create_excel():
 
     output_file = input("Name of output file: ")
     if not output_file:
-        print("FAIL: No output file given!")
-        return
+        # print("FAIL: No output file given!")
+        return "FAIL: No output file given!"
     if output_file[-5:] != ".xlsx":
         output_file += ".xlsx"
     final.to_excel(output_file)
-    print(f"SUCCESS: Created file {output_file}")
+    # print(f"SUCCESS: Created file {output_file}")
+    return f"SUCCESS: Created file {output_file}"
 
 
 def delete_event():
@@ -106,41 +118,47 @@ def delete_event():
     all_data = all_data.drop(columns=[event_name])
     all_data.to_csv(RECORD_FILE, index=False)
 
-    print(f"SUCCESS: Deleted event '{event_name}'")
+    # print(f"SUCCESS: Deleted event '{event_name}'")
+    return f"SUCCESS: Deleted event '{event_name}'"
 
 
 def list_events():
     if RECORD_FILE not in os.listdir():
-        print(f"FAIL: No events to list because {RECORD_FILE} not found!")
-        return
+        # print(f"FAIL: No events to list because {RECORD_FILE} not found!")
+        return f"FAIL: No events to list because {RECORD_FILE} not found!"
 
     all_data = pd.read_csv(RECORD_FILE)
     events_list = f"\n".join([str(col) for col in all_data.columns if col not in [NAME] + COLS_TO_KEEP])
-    print("\nExisting Events:\n" + events_list + "\n")
+    # print("\nExisting Events:\n" + events_list + "\n")
+    return "Existing Events:\n" + events_list
 
 
 def reset_records():
     if input("CONFIRM (enter 'yes'): ") == 'yes':
-        if RECORD_FILE in os.listdir():
-            os.remove(RECORD_FILE)
-            print("SUCCESS: Performed reset")
-        else:
-            print("FAIL: No reset necessary")
+        return reset()
+
+
+def reset():
+    if RECORD_FILE in os.listdir():
+        os.remove(RECORD_FILE)
+        return "SUCCESS: Performed reset"
+    else:
+        return "FAIL: No reset necessary"
 
 
 def quit_program():
-    exit()
+    sys.exit("Quitting")
 
 
 command_list = {
-    "help": display_help,
-    "add": add_spreadsheet,
-    "add from directory": add_from_directory,
-    "output": create_excel,
-    "delete": delete_event,
-    "list events": list_events,
-    "reset": reset_records,
-    "quit": quit_program    
+    "help":                 display_help,
+    "add":                  add_spreadsheet,
+    "add from directory":   add_from_directory,
+    "output":               create_excel,
+    "delete":               delete_event,
+    "list events":          list_events,
+    "reset":                reset_records,
+    "quit":                 quit_program
 }
 
 
@@ -150,7 +168,7 @@ if __name__ == '__main__':
             command = input("\nEnter Command ('help' for help): ")
             if command in command_list:
                 print(f"\n*****\n{command}")
-                command_list[command]()
+                print(command_list[command]())
             else:
                 print(f"UNRECOGNIZED COMMAND: {command}")
         except KeyboardInterrupt:
