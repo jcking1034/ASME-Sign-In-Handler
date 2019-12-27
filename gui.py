@@ -1,9 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-import numpy as np
 import sys
 import datetime as dt
 
-import main
+import utils
 
 """
 To Implement:
@@ -31,7 +30,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.help_button = QtWidgets.QPushButton('Help', self)
         self.help_button.resize(200, 25)
         self.help_button.move(0, 50)
-        self.help_button.clicked.connect(lambda: self.new_message(main.display_help()))
+        self.help_button.clicked.connect(lambda: self.new_message(utils.display_help()))
 
         # Need to reimplement add
         self.add_file_button = QtWidgets.QPushButton('Add Spreadsheet', self)
@@ -52,7 +51,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.list_events_button = QtWidgets.QPushButton('List Events', self)
         self.list_events_button.resize(200, 25)
         self.list_events_button.move(0, 150)
-        self.list_events_button.clicked.connect(lambda: self.new_message(main.list_events()))
+        self.list_events_button.clicked.connect(lambda: self.new_message(utils.list_events()))
 
         self.reset_button = QtWidgets.QPushButton('Reset', self)
         self.reset_button.resize(200, 25)
@@ -78,7 +77,7 @@ class MainWindow(QtWidgets.QMainWindow):
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         val = msg.exec_()
         if val == QtWidgets.QMessageBox.Ok:
-            self.new_message(main.reset())
+            self.new_message(utils.reset())
         else:
             self.new_message("No reset performed")
 
