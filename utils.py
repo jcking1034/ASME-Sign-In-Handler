@@ -4,9 +4,11 @@ import os
 import sys
 from collections import Counter
 
+
 NAME = 'Name'
 COLS_TO_KEEP = ['phone', 'email']   # Cols to keep (not including Name col)
 RECORD_FILE = '.data.csv'           # File to collect/store data
+
 
 def display_help():
     msg = """
@@ -19,7 +21,6 @@ delete: Delete event data by event name
 list events: Print a list of all events in the database
 reset: Delete all records
 quit: quit this program"""
-    # print(msg)
     return msg
 
 
@@ -33,7 +34,6 @@ def add_from_directory():
     try:
         spreadsheets = [f for f in os.listdir(directory) if f[-5:] == '.xlsx']
     except:
-        # print("FAIL: Bad directory")
         return "FAIL: Bad directory"
 
     ret = ''
@@ -47,12 +47,10 @@ def add(sheet):
     try:
         data = pd.read_excel(sheet)
     except:
-        # print('FAIL: Could not read file', sheet)
         return f'FAIL: Could not read file {str(sheet)}'
 
     for col_name in [NAME] + COLS_TO_KEEP:
         if col_name not in data.columns:
-            # print(f'FAIL: Did not find column {col_name}')
             return f'FAIL: Did not find column {col_name}'
 
     # Remove multiple instances of names, keeping the first instance of each name
@@ -65,6 +63,7 @@ def add(sheet):
             event_name = input(f"Name of event for {sheet} (MUST BE UNIQUE): ")
         new_data[event_name] = 1
         new_data.to_csv(RECORD_FILE, index=False)
+
     else:
         all_data = pd.read_csv(RECORD_FILE)
 
@@ -75,13 +74,12 @@ def add(sheet):
 
         all_data = pd.concat([all_data, new_data], sort = False)
         all_data.to_csv(RECORD_FILE, index=False)
-    # print(f"SUCCESS: Added {sheet} to records as '{event_name}'")
+
     return f"SUCCESS: Added {sheet} to records as '{event_name}'"
 
 
 def create_excel():
     if RECORD_FILE not in os.listdir():
-        # print("FAIL: No data exists (hidden file '.data.csv' not found)")
         return "FAIL: No data exists (hidden file '.data.csv' not found)"
 
     all_data = pd.read_csv(RECORD_FILE)
@@ -92,12 +90,11 @@ def create_excel():
 
     output_file = input("Name of output file: ")
     if not output_file:
-        # print("FAIL: No output file given!")
         return "FAIL: No output file given!"
     if output_file[-5:] != ".xlsx":
         output_file += ".xlsx"
     final.to_excel(output_file)
-    # print(f"SUCCESS: Created file {output_file}")
+
     return f"SUCCESS: Created file {output_file}"
 
 
@@ -117,18 +114,16 @@ def delete_event():
     all_data = all_data.drop(columns=[event_name])
     all_data.to_csv(RECORD_FILE, index=False)
 
-    # print(f"SUCCESS: Deleted event '{event_name}'")
     return f"SUCCESS: Deleted event '{event_name}'"
 
 
 def list_events():
     if RECORD_FILE not in os.listdir():
-        # print(f"FAIL: No events to list because {RECORD_FILE} not found!")
         return f"FAIL: No events to list because {RECORD_FILE} not found!"
 
     all_data = pd.read_csv(RECORD_FILE)
     events_list = f"\n".join([str(col) for col in all_data.columns if col not in [NAME] + COLS_TO_KEEP])
-    # print("\nExisting Events:\n" + events_list + "\n")
+
     return "Existing Events:\n" + events_list
 
 
