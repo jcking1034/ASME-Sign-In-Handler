@@ -98,8 +98,9 @@ def create_excel_with_fname(fname):
     if fname[-5:] != ".xlsx":
         fname += ".xlsx"
     final.to_excel(fname)
+    print(final)
 
-    return f"SUCCESS: Created file {fname}"
+    return f"SUCCESS: Created file {fname}, check terminal to peek at data"
 
 
 def delete_event():
@@ -124,8 +125,6 @@ def delete_event_with_fname(fname):
     all_data.to_csv(RECORD_FILE, index=False)
 
     return f"SUCCESS: Deleted event '{fname}'"
-
-
 
 
 def list_events():

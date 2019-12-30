@@ -65,7 +65,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def validate(self, func, text, ok):
-        return func(text) if ok else "Cancelled"
+        return func(text) if text and ok else "Cancelled"
 
 
     def reset_warning(self):
