@@ -22,21 +22,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.name_label = QtWidgets.QLabel(self)
         self.name_label.setText("ASME Sign In Handler")
 
-        self.click_button = QtWidgets.QPushButton('Click me', self)
-        self.click_button.clicked.connect(self.click_method)
-
         self.help_button = QtWidgets.QPushButton('Help', self)
         self.help_button.clicked.connect(lambda: self.new_message(utils.display_help()))
 
-        # Need to reimplement add
         self.add_file_button = QtWidgets.QPushButton('Add Spreadsheet', self)
-        self.add_file_button.clicked.connect(lambda: self.new_message(QtWidgets.QFileDialog.getOpenFileName(self,"TEST", "/")[0]))
+        self.add_file_button.clicked.connect(lambda: self.new_message(utils.add_sheets(QtWidgets.QFileDialog.getOpenFileNames(self,"TEST", "/")[0])))
 
         self.delete_event_button = QtWidgets.QPushButton('Delete Event', self)
-        self.delete_event_button.clicked.connect(lambda: self.new_message("Not Implemented Yet"))
+        self.delete_event_button.clicked.connect(lambda: self.new_message(self.validate(utils.delete_event_with_fname, *QtWidgets.QInputDialog.getText(self, 'File to remove?', 'Enter file name:'))))
 
         self.output_file_button = QtWidgets.QPushButton('Output', self)
-        self.output_file_button.clicked.connect(lambda: self.new_message("Not Implemented Yet"))
+        self.output_file_button.clicked.connect(lambda: self.new_message(self.validate(utils.create_excel_with_fname, *QtWidgets.QInputDialog.getText(self, 'Name of Output File?', 'Enter file name:'))))
 
         self.list_events_button = QtWidgets.QPushButton('List Events', self)
         self.list_events_button.clicked.connect(lambda: self.new_message(utils.list_events()))
@@ -51,7 +47,6 @@ class MainWindow(QtWidgets.QMainWindow):
         widget = QtWidgets.QWidget(self)
         layout = QtWidgets.QVBoxLayout(widget)
         layout.addWidget(self.name_label)
-        layout.addWidget(self.click_button)
         layout.addWidget(self.help_button)
         layout.addWidget(self.add_file_button)
         layout.addWidget(self.delete_event_button)
@@ -60,6 +55,17 @@ class MainWindow(QtWidgets.QMainWindow):
         layout.addWidget(self.reset_button)
         layout.addWidget(self.output_box)
         self.setCentralWidget(widget)
+
+
+    def new_message(self, msg):
+        msg = str(msg)
+        print(msg)
+        self.output_box.append(f"{str(dt.datetime.now())}\n{msg}\n")
+        self.output_box.repaint()
+
+
+    def validate(self, func, text, ok):
+        return func(text) if ok else "Cancelled"
 
 
     def reset_warning(self):
@@ -76,17 +82,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.new_message(utils.reset())
         else:
             self.new_message("No reset performed")
-
-
-    def click_method(self):
-        self.new_message("click_method called")
-
-
-    def new_message(self, msg):
-        msg = str(msg)
-        print(msg)
-        self.output_box.append(f"{str(dt.datetime.now())}\n{msg}\n")
-        self.output_box.repaint()
 
 
 if __name__ == "__main__":
