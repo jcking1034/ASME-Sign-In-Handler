@@ -26,7 +26,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.help_button.clicked.connect(lambda: self.new_message(utils.display_help()))
 
         self.add_file_button = QtWidgets.QPushButton('Add Spreadsheet', self)
-        self.add_file_button.clicked.connect(lambda: self.new_message(utils.add_sheets(QtWidgets.QFileDialog.getOpenFileNames(self,"TEST", "/")[0])))
+        self.add_file_button.clicked.connect(lambda: self.new_message(self.validate(utils.add_sheets, *QtWidgets.QFileDialog.getOpenFileNames(self,"Select File(s)", "/"))))
 
         self.delete_event_button = QtWidgets.QPushButton('Delete Event', self)
         self.delete_event_button.clicked.connect(lambda: self.new_message(self.validate(utils.delete_event_with_fname, *QtWidgets.QInputDialog.getText(self, 'File to remove?', 'Enter file name:'))))
